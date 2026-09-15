@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import {
   ShieldCheck,
   Image as ImageIcon,
@@ -18,30 +18,47 @@ import { decryptMessage } from "../services/api";
 
 const Penerima = () => {
   // 1. Kumpulan State untuk Form dan UI
-  const [secretKey, setSecretKey] = useState("");
+  // Mengambil nilai awal dari localStorage (jika ada), jika tidak, gunakan string kosong ""
+  const [secretKey, setSecretKey] = useState(() => {
+    return localStorage.getItem("steg_penerima_secretKey") || "";
+  });
+
+  // Menyimpan hasil ekstraksi agar tidak hilang jika ter-refresh
+  const [extractedMessage, setExtractedMessage] = useState(() => {
+    return localStorage.getItem("steg_penerima_extractedMessage") || "";
+  });
+
   const [showPassword, setShowPassword] = useState(false);
   const [imageFile, setImageFile] = useState(null);
 
   const [isLoading, setIsLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
   const [successMsg, setSuccessMsg] = useState("");
-  const [extractedMessage, setExtractedMessage] = useState("");
 
-  // Referensi untuk input file tersembunyi
   const fileInputRef = useRef(null);
 
-  // Komponen badge nomor (1, 2, 3)
+  // ==========================================
+  // FITUR BARU: Menyimpan ke localStorage secara otomatis
+  // ==========================================
+  useEffect(() => {
+    localStorage.setItem("steg_penerima_secretKey", secretKey);
+  }, [secretKey]);
+
+  useEffect(() => {
+    localStorage.setItem("steg_penerima_extractedMessage", extractedMessage);
+  }, [extractedMessage]);
+  // ==========================================
+
   const StepBadge = ({ number }) => (
     <div className="w-8 h-8 md:w-10 md:h-10 shrink-0 rounded-full bg-primary-main text-bg-base font-bold flex items-center justify-center shadow-[0_0_15px_var(--color-primary-glow)]">
       {number}
     </div>
   );
 
-  // 2. Fungsi Validasi & Penanganan File Gambar
   const handleFile = (file) => {
     setErrorMsg("");
     setSuccessMsg("");
-    setExtractedMessage(""); // Reset hasil ekstraksi sebelumnya
+    setExtractedMessage(""); // Reset hasil ekstraksi sebelumnya (otomatis membersihkan localStorage juga)
 
     if (file) {
       if (file.type === "image/png" || file.type === "image/bmp") {
@@ -52,7 +69,6 @@ const Penerima = () => {
           setImageFile(file);
         }
       } else {
-        // Peringatan ini penting karena jika dipaksa JPG, pesan pasti hancur
         setErrorMsg(
           "Format tidak didukung. Harap gunakan gambar PNG atau BMP asli dari pengirim.",
         );
@@ -66,7 +82,6 @@ const Penerima = () => {
     handleFile(e.dataTransfer.files[0]);
   };
 
-  // 3. Fungsi Utama Dekripsi (Kirim ke Backend)
   const handleSubmit = async () => {
     setErrorMsg("");
     setSuccessMsg("");
@@ -85,10 +100,10 @@ const Penerima = () => {
     setIsLoading(true);
 
     try {
-      // Memanggil fungsi dari api.js
       const response = await decryptMessage(secretKey, imageFile);
 
       // Jika berhasil, masukkan teks ke dalam kotak hasil
+      // (Ini akan memicu useEffect untuk menyimpannya ke localStorage)
       setExtractedMessage(response.plaintext);
       setSuccessMsg("Berhasil! Pesan rahasia telah diekstrak.");
     } catch (error) {
@@ -98,14 +113,11 @@ const Penerima = () => {
     }
   };
 
-  // Cek apakah form sudah terisi untuk mengaktifkan warna tombol
   const isFormValid = imageFile && secretKey.length > 0;
 
   return (
     <div className="min-h-screen bg-bg-base text-text-main p-4 md:p-8 lg:p-12 font-sans">
-      {/* ================= HEADER ================= */}
       <div className="mb-8 max-w-7xl mx-auto flex items-start gap-4 md:gap-6">
-        {/* Ikon Scanner Custom sesuai desain */}
         <div className="relative w-16 h-16 flex items-center justify-center bg-bg-surface border border-border-subtle rounded-xl shrink-0 overflow-hidden">
           <Maximize
             className="absolute w-12 h-12 text-primary-main/40"
@@ -128,11 +140,8 @@ const Penerima = () => {
         </div>
       </div>
 
-      {/* ================= LAYOUT GRID ================= */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8 max-w-7xl mx-auto">
-        {/* ================= KIRI: FORM (Span 2 Kolom) ================= */}
         <div className="lg:col-span-2 bg-bg-surface border border-border-subtle rounded-card p-6 md:p-8 flex flex-col gap-8 md:gap-10">
-          {/* STEP 1: Unggah Gambar */}
           <div className="flex gap-4">
             <StepBadge number="1" />
             <div className="w-full">
@@ -181,7 +190,6 @@ const Penerima = () => {
             </div>
           </div>
 
-          {/* STEP 2: Masukkan Password */}
           <div className="flex gap-4">
             <StepBadge number="2" />
             <div className="w-full">
@@ -190,7 +198,6 @@ const Penerima = () => {
                 Gunakan password yang sama seperti saat pesan dikirim.
               </p>
               <div className="relative">
-                {/* Ikon Gembok di sebelah kiri input */}
                 <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-text-muted" />
                 <input
                   type={showPassword ? "text" : "password"}
@@ -212,7 +219,6 @@ const Penerima = () => {
             </div>
           </div>
 
-          {/* STEP 3: Tombol Proses */}
           <div className="flex gap-4">
             <StepBadge number="3" />
             <div className="w-full">
@@ -224,7 +230,6 @@ const Penerima = () => {
                 didekripsi secara otomatis.
               </p>
 
-              {/* Area Notifikasi Error / Success diletakkan di atas tombol */}
               {errorMsg && (
                 <div className="flex items-center gap-2 text-[#ef4444] bg-[#ef4444]/10 p-4 rounded-lg border border-[#ef4444]/20 mb-4">
                   <AlertCircle className="w-5 h-5 shrink-0" />
@@ -238,7 +243,6 @@ const Penerima = () => {
                 </div>
               )}
 
-              {/* Tombol dengan styling dinamis (aktif vs tidak aktif) */}
               <button
                 onClick={handleSubmit}
                 disabled={isLoading || !isFormValid}
@@ -270,9 +274,7 @@ const Penerima = () => {
           </div>
         </div>
 
-        {/* ================= KANAN: SIDEBAR & HASIL (Span 1 Kolom) ================= */}
         <div className="lg:col-span-1 flex flex-col gap-6 h-full">
-          {/* Card: Cara Kerja */}
           <div className="bg-bg-surface border border-border-subtle rounded-card p-6">
             <h3 className="text-lg font-bold mb-6 text-text-main">
               Cara Kerja
@@ -322,7 +324,6 @@ const Penerima = () => {
             </div>
           </div>
 
-          {/* Card: Keamanan */}
           <div className="bg-bg-surface border border-border-subtle rounded-card p-6 flex gap-4">
             <div className="w-12 h-12 rounded-full bg-primary-main/10 flex items-center justify-center shrink-0 border border-primary-main/20">
               <ShieldCheck className="w-6 h-6 text-primary-main" />
@@ -338,7 +339,6 @@ const Penerima = () => {
             </div>
           </div>
 
-          {/* Card: HASIL EKSTRAKSI (Paling Penting) */}
           <div className="bg-bg-surface border border-border-subtle rounded-card p-6 flex-grow flex flex-col">
             <h3 className="text-lg font-bold mb-4 text-text-main">
               Hasil Ekstraksi
@@ -347,14 +347,12 @@ const Penerima = () => {
             <div
               className={`flex-grow border rounded-input p-4 relative ${extractedMessage ? "border-primary-main bg-primary-main/5" : "border-border-subtle bg-bg-input"}`}>
               {extractedMessage ? (
-                // Jika pesan berhasil diekstrak
                 <div className="h-full min-h-[150px]">
                   <p className="text-text-main text-sm whitespace-pre-wrap break-words leading-relaxed">
                     {extractedMessage}
                   </p>
                 </div>
               ) : (
-                // State awal / Kosong
                 <div className="h-full min-h-[150px] flex gap-3 opacity-50">
                   <FileText className="w-5 h-5 shrink-0 text-text-muted" />
                   <p className="text-sm text-text-muted mt-0.5">
@@ -365,7 +363,6 @@ const Penerima = () => {
               )}
             </div>
 
-            {/* Indikator panjang karakter teks hasil */}
             <div className="text-right mt-2 text-xs text-text-muted">
               {extractedMessage.length}/5000
             </div>

@@ -1,31 +1,26 @@
 import React, { useState, useRef, useEffect } from "react";
 import {
-  ShieldCheck,
-  Image as ImageIcon,
-  Lock,
-  Unlock,
+  Send,
   Eye,
   EyeOff,
-  MessageSquare,
-  FileText,
+  Image as ImageIcon,
+  Lock,
+  ShieldCheck,
   Loader2,
-  AlertCircle,
   CheckCircle2,
-  Maximize,
+  AlertCircle,
 } from "lucide-react";
 // Sesuaikan jalur import ini dengan lokasi file api.js Anda
-import { decryptMessage } from "../services/api";
+import { encryptMessage } from "../services/api";
 
-const Penerima = () => {
+const Pengirim = () => {
   // 1. Kumpulan State untuk Form dan UI
   // Mengambil nilai awal dari localStorage (jika ada), jika tidak, gunakan string kosong ""
-  const [secretKey, setSecretKey] = useState(() => {
-    return localStorage.getItem("steg_penerima_secretKey") || "";
+  const [message, setMessage] = useState(() => {
+    return localStorage.getItem("steg_message") || "";
   });
-
-  // Menyimpan hasil ekstraksi agar tidak hilang jika ter-refresh
-  const [extractedMessage, setExtractedMessage] = useState(() => {
-    return localStorage.getItem("steg_penerima_extractedMessage") || "";
+  const [secretKey, setSecretKey] = useState(() => {
+    return localStorage.getItem("steg_secretKey") || "";
   });
 
   const [showPassword, setShowPassword] = useState(false);
@@ -41,12 +36,12 @@ const Penerima = () => {
   // FITUR BARU: Menyimpan ke localStorage secara otomatis
   // ==========================================
   useEffect(() => {
-    localStorage.setItem("steg_penerima_secretKey", secretKey);
-  }, [secretKey]);
+    localStorage.setItem("steg_message", message);
+  }, [message]);
 
   useEffect(() => {
-    localStorage.setItem("steg_penerima_extractedMessage", extractedMessage);
-  }, [extractedMessage]);
+    localStorage.setItem("steg_secretKey", secretKey);
+  }, [secretKey]);
   // ==========================================
 
   const StepBadge = ({ number }) => (
@@ -58,7 +53,6 @@ const Penerima = () => {
   const handleFile = (file) => {
     setErrorMsg("");
     setSuccessMsg("");
-    setExtractedMessage(""); // Reset hasil ekstraksi sebelumnya (otomatis membersihkan localStorage juga)
 
     if (file) {
       if (file.type === "image/png" || file.type === "image/bmp") {
@@ -70,7 +64,7 @@ const Penerima = () => {
         }
       } else {
         setErrorMsg(
-          "Format tidak didukung. Harap gunakan gambar PNG atau BMP asli dari pengirim.",
+          "Format file tidak didukung. Harap gunakan format .PNG atau .BMP",
         );
         setImageFile(null);
       }
@@ -85,27 +79,42 @@ const Penerima = () => {
   const handleSubmit = async () => {
     setErrorMsg("");
     setSuccessMsg("");
-    setExtractedMessage("");
 
-    if (!imageFile) {
-      setErrorMsg("Mohon unggah gambar stego terlebih dahulu!");
+    if (!message || !secretKey || !imageFile) {
+      setErrorMsg("Mohon lengkapi Pesan, Kunci Rahasia, dan Gambar!");
       return;
     }
 
-    if (!secretKey) {
-      setErrorMsg("Password (Kunci Rahasia) wajib diisi!");
+    if (secretKey.length < 8) {
+      setErrorMsg("Kunci rahasia minimal 8 karakter!");
       return;
     }
 
     setIsLoading(true);
 
     try {
-      const response = await decryptMessage(secretKey, imageFile);
+      const blob = await encryptMessage(message, secretKey, imageFile);
 
-      // Jika berhasil, masukkan teks ke dalam kotak hasil
-      // (Ini akan memicu useEffect untuk menyimpannya ke localStorage)
-      setExtractedMessage(response.plaintext);
-      setSuccessMsg("Berhasil! Pesan rahasia telah diekstrak.");
+      const downloadUrl = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = downloadUrl;
+      link.download = `stego_${imageFile.name}`;
+      document.body.appendChild(link);
+      link.click();
+
+      link.remove();
+      window.URL.revokeObjectURL(downloadUrl);
+
+      setSuccessMsg("Berhasil! Gambar berisi pesan rahasia telah diunduh.");
+
+      // Reset form setelah sukses
+      setMessage("");
+      setSecretKey("");
+      setImageFile(null);
+
+      // Bersihkan localStorage agar data pengguna tidak tertinggal selamanya
+      localStorage.removeItem("steg_message");
+      localStorage.removeItem("steg_secretKey");
     } catch (error) {
       setErrorMsg(error.message);
     } finally {
@@ -113,31 +122,20 @@ const Penerima = () => {
     }
   };
 
-  const isFormValid = imageFile && secretKey.length > 0;
-
   return (
     <div className="min-h-screen bg-bg-base text-text-main p-4 md:p-8 lg:p-12 font-sans">
-      <div className="mb-8 max-w-7xl mx-auto flex items-start gap-4 md:gap-6">
-        <div className="relative w-16 h-16 flex items-center justify-center bg-bg-surface border border-border-subtle rounded-xl shrink-0 overflow-hidden">
-          <Maximize
-            className="absolute w-12 h-12 text-primary-main/40"
-            strokeWidth={1}
-          />
-          <Lock
-            className="w-6 h-6 text-primary-main relative z-10"
+      <div className="mb-8 max-w-7xl mx-auto">
+        <h1 className="text-3xl md:text-4xl font-bold flex items-center gap-3">
+          <Send
+            className="text-primary-main w-8 h-8 md:w-10 md:h-10"
             strokeWidth={2.5}
           />
-        </div>
-
-        <div>
-          <h1 className="text-3xl md:text-4xl font-bold mb-2">
-            Terima <span className="text-primary-main">Pesan Rahasia</span>
-          </h1>
-          <p className="text-text-muted text-sm md:text-base leading-relaxed max-w-2xl">
-            Ekstrak pesan yang tersembunyi dari gambar, lalu dekripsi
-            menggunakan password yang benar dengan algoritma AES-256.
-          </p>
-        </div>
+          Halaman <span className="text-primary-main">Pengirim</span>
+        </h1>
+        <p className="text-text-muted mt-3 max-w-2xl text-sm md:text-base leading-relaxed">
+          Enkripsi pesan menggunakan AES-256, lalu sisipkan ke dalam gambar
+          dengan teknik LSB steganography.
+        </p>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8 max-w-7xl mx-auto">
@@ -145,11 +143,65 @@ const Penerima = () => {
           <div className="flex gap-4">
             <StepBadge number="1" />
             <div className="w-full">
-              <h2 className="text-lg font-bold mb-1">Unggah Gambar Stego</h2>
+              <h2 className="text-lg font-bold mb-1">Masukkan Pesan</h2>
               <p className="text-text-muted text-sm mb-4">
-                Pilih atau drag & drop gambar yang berisi pesan tersembunyi.
+                Tulis pesan yang ingin Anda kirim. Pesan akan dienkripsi
+                menggunakan algoritma AES-256 sebelum disisipkan ke dalam
+                gambar.
               </p>
+              <div className="relative">
+                <textarea
+                  value={message}
+                  onChange={(e) => setMessage(e.target.value)}
+                  maxLength={500}
+                  className="w-full bg-bg-input border border-border-subtle focus:border-primary-main rounded-input p-4 pb-8 text-text-main placeholder-text-muted resize-none outline-none transition-colors h-32 md:h-40"
+                  placeholder="Contoh: Halo, ini pesan rahasia!"></textarea>
+                <span className="absolute bottom-3 right-4 text-xs text-text-muted font-medium">
+                  {message.length}/500
+                </span>
+              </div>
+            </div>
+          </div>
 
+          <div className="flex gap-4">
+            <StepBadge number="2" />
+            <div className="w-full">
+              <h2 className="text-lg font-bold mb-1">
+                Masukkan Kunci (Password)
+              </h2>
+              <p className="text-text-muted text-sm mb-4">
+                Gunakan kunci yang kuat untuk proses enkripsi. Kunci ini harus
+                sama dengan kunci yang digunakan di halaman penerima.
+              </p>
+              <div className="relative">
+                <input
+                  type={showPassword ? "text" : "password"}
+                  value={secretKey}
+                  onChange={(e) => setSecretKey(e.target.value)}
+                  className="w-full bg-bg-input border border-border-subtle focus:border-primary-main rounded-input p-4 pr-12 text-text-main placeholder-text-muted outline-none transition-colors"
+                  placeholder="Masukkan kunci (minimal 8 karakter)"
+                />
+                <button
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-text-muted hover:text-text-main transition-colors">
+                  {showPassword ? (
+                    <EyeOff className="w-5 h-5" />
+                  ) : (
+                    <Eye className="w-5 h-5" />
+                  )}
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div className="flex gap-4">
+            <StepBadge number="3" />
+            <div className="w-full">
+              <h2 className="text-lg font-bold mb-1">Pilih Gambar</h2>
+              <p className="text-text-muted text-sm mb-4">
+                Unggah gambar yang akan digunakan sebagai media penyimpanan
+                pesan.
+              </p>
               <div
                 onClick={() => fileInputRef.current.click()}
                 onDragOver={(e) => e.preventDefault()}
@@ -190,181 +242,134 @@ const Penerima = () => {
             </div>
           </div>
 
-          <div className="flex gap-4">
-            <StepBadge number="2" />
-            <div className="w-full">
-              <h2 className="text-lg font-bold mb-1">Masukkan Password</h2>
-              <p className="text-text-muted text-sm mb-4">
-                Gunakan password yang sama seperti saat pesan dikirim.
-              </p>
-              <div className="relative">
-                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-text-muted" />
-                <input
-                  type={showPassword ? "text" : "password"}
-                  value={secretKey}
-                  onChange={(e) => setSecretKey(e.target.value)}
-                  className="w-full bg-bg-input border border-border-subtle focus:border-primary-main rounded-input py-4 pl-12 pr-12 text-text-main placeholder-text-muted outline-none transition-colors"
-                  placeholder="Masukkan password"
+          {errorMsg && (
+            <div className="flex items-center gap-2 text-[#ef4444] bg-[#ef4444]/10 p-4 rounded-lg border border-[#ef4444]/20">
+              <AlertCircle className="w-5 h-5 shrink-0" />
+              <p className="text-sm font-medium">{errorMsg}</p>
+            </div>
+          )}
+          {successMsg && (
+            <div className="flex items-center gap-2 text-primary-main bg-primary-main/10 p-4 rounded-lg border border-primary-main/20">
+              <CheckCircle2 className="w-5 h-5 shrink-0" />
+              <p className="text-sm font-medium">{successMsg}</p>
+            </div>
+          )}
+
+          <button
+            onClick={handleSubmit}
+            disabled={isLoading}
+            className={`w-full font-bold py-4 px-6 rounded-button transition-all duration-200 flex items-center justify-center gap-2 mt-2 
+              ${
+                isLoading
+                  ? "bg-primary-main/50 text-bg-base cursor-not-allowed"
+                  : "bg-primary-main hover:bg-primary-hover text-bg-base shadow-lg shadow-primary-main/20"
+              }`}>
+            {isLoading ? (
+              <>
+                <Loader2 className="w-5 h-5 animate-spin" />
+                <span>Memproses Enkripsi...</span>
+              </>
+            ) : (
+              <>
+                <Send
+                  className="w-5 h-5"
+                  strokeWidth={2.5}
+                  fill="currentColor"
                 />
-                <button
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 text-text-muted hover:text-text-main transition-colors">
-                  {showPassword ? (
-                    <EyeOff className="w-5 h-5" />
-                  ) : (
-                    <Eye className="w-5 h-5" />
-                  )}
-                </button>
-              </div>
-            </div>
-          </div>
-
-          <div className="flex gap-4">
-            <StepBadge number="3" />
-            <div className="w-full">
-              <h2 className="text-lg font-bold mb-1">
-                Proses Dekripsi & Ekstraksi
-              </h2>
-              <p className="text-text-muted text-sm mb-4">
-                Setelah gambar dan password valid, pesan akan diekstrak dan
-                didekripsi secara otomatis.
-              </p>
-
-              {errorMsg && (
-                <div className="flex items-center gap-2 text-[#ef4444] bg-[#ef4444]/10 p-4 rounded-lg border border-[#ef4444]/20 mb-4">
-                  <AlertCircle className="w-5 h-5 shrink-0" />
-                  <p className="text-sm font-medium">{errorMsg}</p>
-                </div>
-              )}
-              {successMsg && (
-                <div className="flex items-center gap-2 text-primary-main bg-primary-main/10 p-4 rounded-lg border border-primary-main/20 mb-4">
-                  <CheckCircle2 className="w-5 h-5 shrink-0" />
-                  <p className="text-sm font-medium">{successMsg}</p>
-                </div>
-              )}
-
-              <button
-                onClick={handleSubmit}
-                disabled={isLoading || !isFormValid}
-                className={`w-full font-bold py-4 px-6 rounded-button transition-all duration-300 flex items-center justify-center gap-2
-                  ${
-                    isLoading
-                      ? "bg-primary-main/50 text-bg-base cursor-not-allowed"
-                      : isFormValid
-                        ? "bg-primary-main hover:bg-primary-hover text-bg-base shadow-lg shadow-primary-main/20"
-                        : "bg-bg-input border border-border-subtle text-text-muted cursor-not-allowed"
-                  }`}>
-                {isLoading ? (
-                  <>
-                    <Loader2 className="w-5 h-5 animate-spin" />
-                    <span>Mengekstrak Pesan...</span>
-                  </>
-                ) : (
-                  <>
-                    {isFormValid ? (
-                      <Unlock className="w-5 h-5" />
-                    ) : (
-                      <Lock className="w-5 h-5" />
-                    )}
-                    <span>Ekstrak Pesan</span>
-                  </>
-                )}
-              </button>
-            </div>
-          </div>
+                <span>Kirim & Sisipkan Pesan</span>
+              </>
+            )}
+          </button>
         </div>
 
-        <div className="lg:col-span-1 flex flex-col gap-6 h-full">
-          <div className="bg-bg-surface border border-border-subtle rounded-card p-6">
-            <h3 className="text-lg font-bold mb-6 text-text-main">
-              Cara Kerja
-            </h3>
+        <div className="lg:col-span-1 h-fit flex flex-col gap-6">
+          <div className="bg-bg-surface border border-border-subtle rounded-card p-6 md:p-8">
+            <h3 className="text-lg font-bold mb-6 text-text-main">Informasi</h3>
             <div className="flex flex-col gap-6">
               <div className="flex gap-4">
-                <div className="w-10 h-10 rounded-full bg-border-subtle flex items-center justify-center shrink-0">
-                  <ImageIcon className="w-5 h-5 text-primary-main" />
-                </div>
-                <div>
-                  <h4 className="text-sm font-bold text-text-main mb-1">
-                    1. Ekstraksi LSB
-                  </h4>
-                  <p className="text-xs text-text-muted leading-relaxed">
-                    Gambar dibaca untuk mengambil data tersembunyi (LSB).
-                  </p>
-                </div>
-              </div>
-
-              <div className="flex gap-4">
-                <div className="w-10 h-10 rounded-full bg-border-subtle flex items-center justify-center shrink-0">
+                <div className="w-10 h-10 rounded-full bg-primary-main/10 border border-primary-main/20 flex items-center justify-center shrink-0">
                   <Lock className="w-5 h-5 text-primary-main" />
                 </div>
                 <div>
                   <h4 className="text-sm font-bold text-text-main mb-1">
-                    2. Dekripsi AES-256
+                    AES-256 Encryption
                   </h4>
                   <p className="text-xs text-text-muted leading-relaxed">
-                    Data hasil ekstraksi didekripsi menggunakan password Anda.
+                    Pesan Anda akan dienkripsi menggunakan algoritma AES-256,
+                    standar keamanan tertinggi di dunia.
                   </p>
                 </div>
               </div>
 
               <div className="flex gap-4">
-                <div className="w-10 h-10 rounded-full bg-border-subtle flex items-center justify-center shrink-0">
-                  <MessageSquare className="w-5 h-5 text-primary-main" />
+                <div className="w-10 h-10 rounded-full bg-[#8B5CF6]/10 border border-[#8B5CF6]/20 flex items-center justify-center shrink-0">
+                  <ImageIcon className="w-5 h-5 text-[#8B5CF6]" />
                 </div>
                 <div>
                   <h4 className="text-sm font-bold text-text-main mb-1">
-                    3. Tampilkan Pesan
+                    LSB Steganography
                   </h4>
                   <p className="text-xs text-text-muted leading-relaxed">
-                    Pesan asli akan ditampilkan setelah proses berhasil.
+                    Pesan terenkripsi akan disisipkan ke dalam gambar
+                    menggunakan teknik Least Significant Bit (LSB).
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex gap-4">
+                <div className="w-10 h-10 rounded-full bg-primary-main/10 border border-primary-main/20 flex items-center justify-center shrink-0">
+                  <ShieldCheck className="w-5 h-5 text-primary-main" />
+                </div>
+                <div>
+                  <h4 className="text-sm font-bold text-text-main mb-1">
+                    Keamanan Ganda
+                  </h4>
+                  <p className="text-xs text-text-muted leading-relaxed">
+                    Kombinasi enkripsi dan steganografi membuat pesan Anda lebih
+                    aman dan sulit dideteksi.
                   </p>
                 </div>
               </div>
             </div>
           </div>
 
-          <div className="bg-bg-surface border border-border-subtle rounded-card p-6 flex gap-4">
-            <div className="w-12 h-12 rounded-full bg-primary-main/10 flex items-center justify-center shrink-0 border border-primary-main/20">
-              <ShieldCheck className="w-6 h-6 text-primary-main" />
-            </div>
-            <div>
-              <h4 className="text-sm font-bold text-text-main mb-1">
-                Keamanan Terjamin
-              </h4>
-              <p className="text-xs text-text-muted leading-relaxed">
-                Gabungan AES-256 dan LSB Steganography memberikan perlindungan
-                ganda untuk pesan Anda.
-              </p>
-            </div>
-          </div>
-
-          <div className="bg-bg-surface border border-border-subtle rounded-card p-6 flex-grow flex flex-col">
-            <h3 className="text-lg font-bold mb-4 text-text-main">
-              Hasil Ekstraksi
+          <div className="bg-bg-surface border border-border-subtle rounded-card p-6 md:p-8">
+            <h3 className="text-lg font-bold mb-5 text-text-main">
+              Alur Proses
             </h3>
-
-            <div
-              className={`flex-grow border rounded-input p-4 relative ${extractedMessage ? "border-primary-main bg-primary-main/5" : "border-border-subtle bg-bg-input"}`}>
-              {extractedMessage ? (
-                <div className="h-full min-h-[150px]">
-                  <p className="text-text-main text-sm whitespace-pre-wrap break-words leading-relaxed">
-                    {extractedMessage}
-                  </p>
+            <div className="flex flex-col gap-4">
+              {[
+                "Enkripsi pesan (AES-256)",
+                "Konversi ke bitstream",
+                "Sisipkan ke gambar (LSB)",
+                "Hasil: Gambar dengan pesan tersembunyi",
+              ].map((text, idx) => (
+                <div key={idx} className="flex items-center gap-3">
+                  <span className="w-6 h-6 rounded-full bg-bg-input border border-border-subtle flex items-center justify-center text-xs font-bold text-text-muted shrink-0">
+                    {idx + 1}
+                  </span>
+                  <span className="text-sm text-text-muted">{text}</span>
                 </div>
-              ) : (
-                <div className="h-full min-h-[150px] flex gap-3 opacity-50">
-                  <FileText className="w-5 h-5 shrink-0 text-text-muted" />
-                  <p className="text-sm text-text-muted mt-0.5">
-                    Pesan yang diekstrak akan muncul di sini setelah proses
-                    berhasil.
-                  </p>
-                </div>
-              )}
+              ))}
             </div>
 
-            <div className="text-right mt-2 text-xs text-text-muted">
-              {extractedMessage.length}/5000
+            <div className="mt-8 bg-bg-input border border-border-subtle rounded-lg p-6 flex items-center justify-center relative overflow-hidden h-32">
+              <ImageIcon className="w-16 h-16 text-border-subtle opacity-50 absolute left-8" />
+              <Lock
+                className="w-12 h-12 text-primary-main absolute z-10 drop-shadow-[0_0_10px_rgba(0,208,156,0.3)]"
+                fill="currentColor"
+              />
+              <div className="absolute right-6 flex flex-col gap-1 opacity-40">
+                <span className="text-[10px] font-mono text-primary-main tracking-widest">
+                  010101
+                </span>
+                <span className="text-[10px] font-mono text-primary-main tracking-widest">
+                  010010
+                </span>
+                <span className="text-[10px] font-mono text-primary-main tracking-widest">
+                  010101
+                </span>
+              </div>
             </div>
           </div>
         </div>
@@ -373,4 +378,4 @@ const Penerima = () => {
   );
 };
 
-export default Penerima;
+export default Pengirim;
