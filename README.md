@@ -45,3 +45,51 @@ Karena aplikasi ini terdiri dari "Mesin" (Backend) dan "Tampilan" (Frontend), An
 4. Ketik perintah ini di terminal dan tekan **Enter**:
    ```bash
    pip install -r requirements.txt
+(Tunggu sampai proses download selesai, butuh koneksi internet).
+5. Setelah selesai, ketik perintah ini dan tekan Enter:
+   python app.py
+   note: Jika muncul tulisan Running on http://127.0.0.1:5000, tandanya backend sudah berhasil.
+   PENTING: Jangan tutup VS Code ini! Biarkan saja menyala di latar belakang.
+
+### TAHAP 2
+1. Buka jendela VS Code baru (Klik File > New Window).
+2. Di VS Code yang baru ini, klik File > Open Folder... > Pilih folder frontend_app.
+3. Buka Terminal lagi (Terminal > New Terminal).
+4. Ketik perintah ini dan tekan Enter:
+   npm install
+5. Setelah selesai, ketik perintah ini dan tekan Enter:
+   npm run dev
+6. Terminal akan memunculkan tulisan ➜  Local:   http://localhost:5173/.
+7. Arahkan mouse ke tulisan http://localhost:5173/ tersebut, lalu tekan tombol Ctrl di keyboard dan Klik tulisannya. Aplikasi akan terbuka di browser.
+
+## CARA MENGGUNAKAN APLIKASI
+### PENGIRIM
+1. Siapkan sebuah gambar berformat .PNG atau .BMP (Jangan gunakan .JPG/.JPEG).
+
+2. Di website aplikasi, masuk ke halaman Pengirim.
+
+3. Tulis pesan rahasia Anda.
+
+4. Masukkan password (kunci) yang kuat. Jangan sampai lupa password ini!
+
+5. Masukkan gambar .PNG Anda tadi ke dalam kotak yang disediakan.
+
+6. Klik Kirim & Sisipkan Pesan.
+
+7. Gambar baru (Stego Image) akan otomatis ter-download ke komputer Anda. Kirimkan gambar hasil ini ke teman Anda.
+
+   NOTE: Jika kamu mengirim gambar ini lewat WhatsApp, WAJIB dikirim sebagai "Document / Dokumen". Jika dikirim sebagai foto galeri biasa, WhatsApp akan mengecilkan (compress) gambar tersebut dan pesan rahasia di dalamnya akan HANCUR. Cara paling aman adalah mengirimnya lewat Email atau Telegram (sebagai File).
+
+   
+### PENERIMA
+1. Download gambar dari teman Anda dan simpan di komputer.
+
+2. Di website aplikasi, masuk ke halaman Penerima.
+
+3. Masukkan gambar yang baru saja Anda download.
+
+4. Masukkan password rahasia yang sudah disepakati dengan pengirim.
+
+5. Klik Ekstrak Pesan.
+
+6. Baca pesan rahasia Anda di kotak sebelah kanan!
