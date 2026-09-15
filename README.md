@@ -38,7 +38,7 @@ Di dalam folder hasil ekstrak tersebut, Anda akan melihat dua folder utama: `bac
 
 Karena aplikasi ini terdiri dari "Mesin" (Backend) dan "Tampilan" (Frontend), Anda harus menyalakan keduanya. Ikuti langkah ini pelan-pelan:
 
-### TAHAP 1: Menyalakan Mesin (Backend)
+### TAHAP 1
 1. Buka aplikasi **VS Code**.
 2. Klik menu `File` > `Open Folder...` > Pilih folder **`backend_app`**.
 3. Di VS Code, klik menu `Terminal` (di bagian atas layar) > `New Terminal`. Akan muncul kotak hitam di bagian bawah.
