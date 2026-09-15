@@ -43,12 +43,12 @@ Karena aplikasi ini terdiri dari "Mesin" (Backend) dan "Tampilan" (Frontend), An
 2. Klik menu `File` > `Open Folder...` > Pilih folder **`backend_app`**.
 3. Di VS Code, klik menu `Terminal` (di bagian atas layar) > `New Terminal`. Akan muncul kotak hitam di bagian bawah.
 4. Ketik perintah ini di terminal dan tekan **Enter**:
-   ```bash
+   ```
    pip install -r requirements.txt
 (Tunggu sampai proses download selesai, butuh koneksi internet).
 
 5. Setelah selesai, ketik perintah ini dan tekan Enter:
-   python app.py
+   ```python app.py```
    note: Jika muncul tulisan Running on http://127.0.0.1:5000, tandanya backend sudah berhasil.
    PENTING: Jangan tutup VS Code ini! Biarkan saja menyala di latar belakang.
 
@@ -57,9 +57,9 @@ Karena aplikasi ini terdiri dari "Mesin" (Backend) dan "Tampilan" (Frontend), An
 2. Di VS Code yang baru ini, klik File > Open Folder... > Pilih folder frontend_app.
 3. Buka Terminal lagi (Terminal > New Terminal).
 4. Ketik perintah ini dan tekan Enter:
-   npm install
+   ```npm install```
 5. Setelah selesai, ketik perintah ini dan tekan Enter:
-   npm run dev
+   ```npm run dev```
 6. Terminal akan memunculkan tulisan ➜  Local:   http://localhost:5173/.
 7. Arahkan mouse ke tulisan http://localhost:5173/ tersebut, lalu tekan tombol Ctrl di keyboard dan Klik tulisannya. Aplikasi akan terbuka di browser.
 
