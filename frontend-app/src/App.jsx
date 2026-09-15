@@ -1,7 +1,18 @@
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import Navbar from "./components/Navbar";
 import "./App.css";
 
 function App() {
-  return <h1 className="text-amber-500">Hello World</h1>;
+  return (
+    <BrowserRouter>
+      <Navbar />
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/penerima" element={<PenerimaPage />} />
+        <Route path="/pengirim" element={<PengirimPage />} />
+      </Routes>
+    </BrowserRouter>
+  );
 }
 
 export default App;
