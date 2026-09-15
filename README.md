@@ -46,6 +46,7 @@ Karena aplikasi ini terdiri dari "Mesin" (Backend) dan "Tampilan" (Frontend), An
    ```bash
    pip install -r requirements.txt
 (Tunggu sampai proses download selesai, butuh koneksi internet).
+
 5. Setelah selesai, ketik perintah ini dan tekan Enter:
    python app.py
    note: Jika muncul tulisan Running on http://127.0.0.1:5000, tandanya backend sudah berhasil.
