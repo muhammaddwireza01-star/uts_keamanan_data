@@ -1,50 +1,47 @@
-@import url("https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap");
 @import "tailwindcss";
-
-@import "tailwindcss";
-
 @theme {
-  /* =========================================
-     1. WARNA (COLORS)
-  ========================================= */
-
-  /* Background Colors */
-  --color-bg-base: #0a0f1c; /* Latar belakang utama (paling gelap) */
-  --color-bg-surface: #111827; /* Latar belakang kartu (form & sidebar) */
-  --color-bg-input: #0f172a; /* Latar belakang form input & area drag/drop */
-
-  /* Primary/Accent Colors (Teal/Cyan) */
-  --color-primary-main: #00d09c; /* Hijau terang untuk tombol & highlight teks */
-  --color-primary-hover: #00b386; /* Warna tombol saat di-hover */
-  --color-primary-glow: rgba(0, 208, 156, 0.2); /* Efek glow untuk ikon nomor */
-
-  /* Text Colors */
-  --color-text-main: #f8fafc; /* Teks utama (putih/sangat terang) */
-  --color-text-muted: #94a3b8; /* Teks sekunder (deskripsi & placeholder) */
-
-  /* Border Colors */
-  --color-border-subtle: #1e293b; /* Border untuk card dan input */
-  --color-border-active: #00d09c; /* Border saat input diklik (focus) */
-
-  /* =========================================
-     2. TIPOGRAFI (TYPOGRAPHY)
-  ========================================= */
+  /* ========================================= 1. WARNA (COLORS) ========================================= */ /* Background Colors */
+  --color-bg-base: #0a0f1c;
+  --color-bg-surface: #111827;
+  --color-bg-input: #0f172a; /* Primary / Accent Colors */
+  --color-primary-main: #00d09c;
+  --color-primary-hover: #00b386;
+  --color-primary-glow: rgba(0, 208, 156, 0.2); /* Text Colors */
+  --color-text-main: #f8fafc;
+  --color-text-muted: #94a3b8; /* Border Colors */
+  --color-border-subtle: #1e293b;
+  --color-border-active: #00d09c; /* ========================================= 2. TYPOGRAPHY ========================================= */
   --font-sans:
-    "Inter", system-ui, sans-serif; /* Menggunakan font Inter agar terlihat modern */
-
-  /* =========================================
-     3. BENTUK SUDUT (BORDER RADIUS)
-  ========================================= */
-  --radius-card: 16px; /* Lengkungan untuk kartu besar */
-  --radius-input: 8px; /* Lengkungan untuk kotak input */
-  --radius-button: 8px; /* Lengkungan untuk tombol standar */
-}
-
-/* Base styling untuk menyesuaikan tema gelap secara otomatis */
+    "Inter", system-ui, sans-serif; /* ========================================= 3. BORDER RADIUS ========================================= */
+  --radius-card: 16px;
+  --radius-input: 8px;
+  --radius-button: 8px;
+} /* ========================================= BASE STYLING ========================================= */
 @layer base {
+  /* PERBAIKAN: Terapkan sembunyikan scrollbar di html dan body sekaligus */
+  html,
   body {
+    margin: 0;
     background-color: var(--color-bg-base);
     color: var(--color-text-main);
-    font-family: var(--color-font-sans);
+    font-family: var(--font-sans);
+    scrollbar-width: none !important; /* Firefox */
+    -ms-overflow-style: none !important; /* IE/Edge */
+  }
+
+  /* PERBAIKAN: Targetkan webkit untuk kedua elemen */
+  html::-webkit-scrollbar,
+  body::-webkit-scrollbar {
+    display: none !important; /* Chrome, Safari, Opera, Edge Baru */
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+  button,
+  input,
+  textarea {
+    font: inherit;
   }
 }
