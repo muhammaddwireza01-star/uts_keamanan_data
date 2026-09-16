@@ -17,11 +17,11 @@ const Home = () => {
       <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary-main/10 rounded-full blur-[100px] -z-10"></div>
       <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-[#8B5CF6]/10 rounded-full blur-[100px] -z-10"></div>
 
-      <div className="max-w-7xl mx-auto px-6 md:px-12 py-12 grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-8 items-center w-full z-10">
+      <div className="max-w-7xl mx-auto px-6 md:px-12 grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-8 items-center w-full z-10">
         {/* =========================================
             KOLOM KIRI: TEKS & TOMBOL (COPYWRITING)
         ========================================= */}
-        <div className="flex flex-col gap-6 md:gap-8 text-center lg:text-left">
+        <div className="flex flex-col gap-2 md:gap-4 text-center lg:text-left">
           {/* Badge Label */}
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary-main/10 border border-primary-main/20 text-primary-main text-sm font-semibold w-fit mx-auto lg:mx-0">
             <ShieldCheck className="w-4 h-4" />
@@ -29,7 +29,7 @@ const Home = () => {
           </div>
 
           {/* Headline Utama */}
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight">
+          <h1 className="text-4xl md:text-4xl lg:text-5xl font-bold leading-tight">
             Sembunyikan Pesan Anda di Balik{" "}
             <span className="text-primary-main">Sebuah Gambar.</span>
           </h1>

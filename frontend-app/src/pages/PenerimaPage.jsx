@@ -364,7 +364,7 @@ const Penerima = () => {
             </div>
 
             <div className="text-right mt-2 text-xs text-text-muted">
-              {extractedMessage.length}/5000
+              {extractedMessage.length}/500
             </div>
           </div>
         </div>
