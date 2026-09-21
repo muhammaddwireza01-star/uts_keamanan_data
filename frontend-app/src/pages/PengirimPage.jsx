@@ -333,26 +333,55 @@ const Pengirim = () => {
             </div>
           </div>
 
+          {/* Card: Alur Proses (Diperbarui dengan Detail Algoritma) */}
           <div className="bg-bg-surface border border-border-subtle rounded-card p-6 md:p-8">
             <h3 className="text-lg font-bold mb-5 text-text-main">
-              Alur Proses
+              Alur Proses Algoritma
             </h3>
             <div className="flex flex-col gap-4">
               {[
-                "Enkripsi pesan (AES-256)",
-                "Konversi ke bitstream",
-                "Sisipkan ke gambar (LSB)",
-                "Hasil: Gambar dengan pesan tersembunyi",
-              ].map((text, idx) => (
-                <div key={idx} className="flex items-center gap-3">
-                  <span className="w-6 h-6 rounded-full bg-bg-input border border-border-subtle flex items-center justify-center text-xs font-bold text-text-muted shrink-0">
+                {
+                  title: "Key Derivation & Expansion",
+                  desc: "Membangkitkan kunci AES 256-bit dari password menggunakan KDF (PBKDF2) untuk digunakan pada setiap putaran enkripsi.",
+                },
+                {
+                  title: "Data Padding (PKCS7)",
+                  desc: "Menambahkan byte pad pada pesan asli agar panjang data habis dibagi dalam ukuran blok 128-bit.",
+                },
+                {
+                  title: "Enkripsi AES-256 (14 Rounds)",
+                  desc: "Transformasi blok data melalui operasi SubBytes, ShiftRows, MixColumns, dan AddRoundKey.",
+                },
+                {
+                  title: "Konversi ke Bitstream",
+                  desc: "Mengubah ciphertext (hasil enkripsi) menjadi deretan bit biner tunggal (0 dan 1).",
+                },
+                {
+                  title: "Injeksi Bit LSB",
+                  desc: "Menyisipkan bitstream ke Least Significant Bit pada channel warna (R,G,B) dari piksel gambar.",
+                },
+                {
+                  title: "Generate Stego Image",
+                  desc: "Menyimpan gambar hasil secara lossless (PNG/BMP) agar manipulasi piksel tidak rusak oleh kompresi.",
+                },
+              ].map((item, idx) => (
+                <div key={idx} className="flex items-start gap-3">
+                  <span className="w-6 h-6 rounded-full bg-bg-input border border-border-subtle flex items-center justify-center text-xs font-bold text-text-muted shrink-0 mt-0.5">
                     {idx + 1}
                   </span>
-                  <span className="text-sm text-text-muted">{text}</span>
+                  <div className="flex flex-col">
+                    <span className="text-sm font-semibold text-text-main">
+                      {item.title}
+                    </span>
+                    <span className="text-xs text-text-muted mt-0.5 leading-relaxed">
+                      {item.desc}
+                    </span>
+                  </div>
                 </div>
               ))}
             </div>
 
+            {/* Ilustrasi Dekoratif Sederhana */}
             <div className="mt-8 bg-bg-input border border-border-subtle rounded-lg p-6 flex items-center justify-center relative overflow-hidden h-32">
               <ImageIcon className="w-16 h-16 text-border-subtle opacity-50 absolute left-8" />
               <Lock
