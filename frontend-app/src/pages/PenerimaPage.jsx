@@ -275,52 +275,53 @@ const Penerima = () => {
         </div>
 
         <div className="lg:col-span-1 flex flex-col gap-6 h-full">
+          {/* Card: Cara Kerja (Diperbarui dengan Detail Algoritma) */}
           <div className="bg-bg-surface border border-border-subtle rounded-card p-6">
             <h3 className="text-lg font-bold mb-6 text-text-main">
-              Cara Kerja
+              Alur Dekripsi Algoritma
             </h3>
-            <div className="flex flex-col gap-6">
-              <div className="flex gap-4">
-                <div className="w-10 h-10 rounded-full bg-border-subtle flex items-center justify-center shrink-0">
-                  <ImageIcon className="w-5 h-5 text-primary-main" />
+            <div className="flex flex-col gap-4">
+              {[
+                {
+                  icon: <ImageIcon className="w-4 h-4 text-primary-main" />,
+                  title: "Ekstraksi Bit LSB",
+                  desc: "Membaca bit paling akhir (LSB) dari setiap piksel RGB pada Stego-Image.",
+                },
+                {
+                  icon: <FileText className="w-4 h-4 text-primary-main" />,
+                  title: "Rekonstruksi Bitstream",
+                  desc: "Mengelompokkan bit yang diekstrak menjadi format byte (ciphertext utuh) hingga mencapai delimiter.",
+                },
+                {
+                  icon: <ShieldCheck className="w-4 h-4 text-primary-main" />,
+                  title: "Key Derivation (PBKDF2)",
+                  desc: "Membangkitkan kembali kunci AES 256-bit dari password yang dimasukkan pengguna.",
+                },
+                {
+                  icon: <Lock className="w-4 h-4 text-primary-main" />,
+                  title: "Dekripsi AES-256",
+                  desc: "Memproses ciphertext melalui Inverse SubBytes, ShiftRows, MixColumns, dan AddRoundKey.",
+                },
+                {
+                  icon: <MessageSquare className="w-4 h-4 text-primary-main" />,
+                  title: "Unpadding & Output",
+                  desc: "Menghapus byte padding PKCS7 untuk mengembalikan teks pesan asli secara utuh.",
+                },
+              ].map((item, idx) => (
+                <div key={idx} className="flex items-start gap-4">
+                  <div className="w-8 h-8 rounded-full bg-border-subtle flex items-center justify-center shrink-0 mt-0.5">
+                    {item.icon}
+                  </div>
+                  <div className="flex flex-col">
+                    <span className="text-sm font-semibold text-text-main">
+                      {item.title}
+                    </span>
+                    <span className="text-xs text-text-muted mt-0.5 leading-relaxed">
+                      {item.desc}
+                    </span>
+                  </div>
                 </div>
-                <div>
-                  <h4 className="text-sm font-bold text-text-main mb-1">
-                    1. Ekstraksi LSB
-                  </h4>
-                  <p className="text-xs text-text-muted leading-relaxed">
-                    Gambar dibaca untuk mengambil data tersembunyi (LSB).
-                  </p>
-                </div>
-              </div>
-
-              <div className="flex gap-4">
-                <div className="w-10 h-10 rounded-full bg-border-subtle flex items-center justify-center shrink-0">
-                  <Lock className="w-5 h-5 text-primary-main" />
-                </div>
-                <div>
-                  <h4 className="text-sm font-bold text-text-main mb-1">
-                    2. Dekripsi AES-256
-                  </h4>
-                  <p className="text-xs text-text-muted leading-relaxed">
-                    Data hasil ekstraksi didekripsi menggunakan password Anda.
-                  </p>
-                </div>
-              </div>
-
-              <div className="flex gap-4">
-                <div className="w-10 h-10 rounded-full bg-border-subtle flex items-center justify-center shrink-0">
-                  <MessageSquare className="w-5 h-5 text-primary-main" />
-                </div>
-                <div>
-                  <h4 className="text-sm font-bold text-text-main mb-1">
-                    3. Tampilkan Pesan
-                  </h4>
-                  <p className="text-xs text-text-muted leading-relaxed">
-                    Pesan asli akan ditampilkan setelah proses berhasil.
-                  </p>
-                </div>
-              </div>
+              ))}
             </div>
           </div>
 
